@@ -4,7 +4,19 @@ import java.util.List;
 public class TrainConsistManagementApp {
     public static void main(String[] args) {
         System.out.println("=== Train Consist Management App ===");
-        List<String> trainConsist = new ArrayList<>();
-        System.out.println("Initial bogie count: " + trainConsist.size());
+
+        List<String> passengerBogies = new ArrayList<>();
+
+        passengerBogies.add("Sleeper");
+        passengerBogies.add("AC Chair");
+        passengerBogies.add("First Class");
+
+        System.out.println("Passenger bogies after addition: " + passengerBogies);
+
+        passengerBogies.remove("AC Chair");
+        System.out.println("Passenger bogies after removal: " + passengerBogies);
+
+        boolean hasSleeper = passengerBogies.contains("Sleeper");
+        System.out.println("Does Sleeper bogie exist? " + hasSleeper);
     }
 }
