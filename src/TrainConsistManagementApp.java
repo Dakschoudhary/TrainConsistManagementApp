@@ -30,53 +30,80 @@ public class TrainConsistManagementApp {
 
         List<Bogie> bogies = new ArrayList<>();
 
-        bogies.add(new Bogie("Sleeper", 72));
-        bogies.add(new Bogie("AC Chair", 50));
-        bogies.add(new Bogie("Sleeper", 72));
-        bogies.add(new Bogie("First Class", 30));
-        bogies.add(new Bogie("AC Chair", 50));
+
+        for (int i = 0; i < 100000; i++) {
+            bogies.add(new Bogie("Sleeper", 72));
+            bogies.add(new Bogie("AC Chair", 50));
+            bogies.add(new Bogie("First Class", 30));
+        }
+
 
         Map<String, List<Bogie>> groupedBogies =
                 bogies.stream()
                         .collect(Collectors.groupingBy(Bogie::getType));
 
-        System.out.println("\n===== Grouped Bogies =====");
+        System.out.println("\n===== Grouped Bogies (Sample) =====");
         groupedBogies.forEach((type, list) -> {
-            System.out.println("Type: " + type);
-            list.forEach(b -> System.out.println("  " + b));
+            System.out.println(type + " -> " + list.size() + " bogies");
         });
 
 
-        int totalSeats =
-                bogies.stream()
-                        .map(Bogie::getCapacity)
-                        .reduce(0, Integer::sum);
+        int totalSeats = bogies.stream()
+                .map(Bogie::getCapacity)
+                .reduce(0, Integer::sum);
 
-        System.out.println("\n===== Total Seating Capacity =====");
-        System.out.println("Total Seats: " + totalSeats);
+        System.out.println("\nTotal Seats: " + totalSeats);
 
 
-        System.out.println("\n===== Goods Bogie Safety Check =====");
+        List<GoodsBogie> goodsBogies = Arrays.asList(
+                new GoodsBogie("Cylindrical", "Petroleum"),
+                new GoodsBogie("Rectangular", "Coal")
+        );
 
-        List<GoodsBogie> goodsBogies = new ArrayList<>();
+        boolean isSafe = goodsBogies.stream().allMatch(b ->
+                !b.getType().equalsIgnoreCase("Cylindrical") ||
+                        b.getCargo().equalsIgnoreCase("Petroleum")
+        );
 
-        goodsBogies.add(new GoodsBogie("Cylindrical", "Petroleum"));
-        goodsBogies.add(new GoodsBogie("Rectangular", "Coal"));
-        goodsBogies.add(new GoodsBogie("Cylindrical", "Petroleum"));
+        System.out.println("Safety Status: " + (isSafe ? "SAFE" : "UNSAFE"));
 
 
-        boolean isSafe =
-                goodsBogies.stream()
-                        .allMatch(b ->
-                                !b.getType().equalsIgnoreCase("Cylindrical")
-                                        || b.getCargo().equalsIgnoreCase("Petroleum")
-                        );
+        System.out.println("\n===== Performance Comparison =====");
 
-        System.out.println("Train Safety Status: " + (isSafe ? "SAFE" : "UNSAFE"));
+
+        long startLoop = System.nanoTime();
+
+        List<Bogie> loopResult = new ArrayList<>();
+        for (Bogie b : bogies) {
+            if (b.getCapacity() > 60) {
+                loopResult.add(b);
+            }
+        }
+
+        long endLoop = System.nanoTime();
+        long loopTime = endLoop - startLoop;
+
+
+        long startStream = System.nanoTime();
+
+        List<Bogie> streamResult = bogies.stream()
+                .filter(b -> b.getCapacity() > 60)
+                .collect(Collectors.toList());
+
+        long endStream = System.nanoTime();
+        long streamTime = endStream - startStream;
+
+
+        System.out.println("Loop Result Size: " + loopResult.size());
+        System.out.println("Stream Result Size: " + streamResult.size());
+
+        System.out.println("Loop Time (ns): " + loopTime);
+        System.out.println("Stream Time (ns): " + streamTime);
 
         sc.close();
     }
 }
+
 
 class Bogie {
     private String type;
@@ -93,11 +120,6 @@ class Bogie {
 
     public int getCapacity() {
         return capacity;
-    }
-
-    @Override
-    public String toString() {
-        return "Bogie{type='" + type + "', capacity=" + capacity + "}";
     }
 }
 
@@ -117,10 +139,5 @@ class GoodsBogie {
 
     public String getCargo() {
         return cargo;
-    }
-
-    @Override
-    public String toString() {
-        return "GoodsBogie{type='" + type + "', cargo='" + cargo + "'}";
     }
 }
